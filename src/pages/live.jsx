@@ -19,12 +19,10 @@ function LiveStream() {
 
       if (isNaN(regDate.getTime())) {
         console.error("Invalid date format:", registeredDate);
-        return true; // Anggap expired jika date invalid
+        return true;
       }
 
       const type = (membershipType || "monthly").toLowerCase();
-
-      // Hitung tanggal expiry berdasarkan type
       let expiryDate = new Date(regDate);
 
       if (type === "weekly" || type === "mingguan") {
@@ -95,8 +93,77 @@ function LiveStream() {
     return type;
   };
 
+  // Fungsi untuk memvalidasi data localStorage dengan API
+  const validateUserWithAPI = async (userData) => {
+    try {
+      console.log("Validating user data with API...");
+      
+      const response = await fetch(
+        "https://v2.jkt48connect.my.id/api/verify/check?apikey=JKTCONNECT&username=vzy&password=vzy",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: userData.email,
+            whatsapp: userData.whatsapp,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        console.error("User validation failed:", data.message);
+        return false;
+      }
+
+      // Cek status verifikasi dari API
+      const isTrueValue = (value) => {
+        if (typeof value === "boolean") return value;
+        if (typeof value === "string") {
+          return value.toLowerCase() === "true";
+        }
+        return false;
+      };
+
+      const hasStatusPengecekan = "status_pengecekan_" in data.data;
+      const hasStatus = "status" in data.data;
+      const hasColumn3 = "column_3" in data.data;
+      
+      let isVerified = false;
+      
+      if (hasStatusPengecekan) {
+        isVerified = isTrueValue(data.data.status_pengecekan_);
+      } else if (hasStatus) {
+        isVerified = data.data.status && data.data.status.toLowerCase() === "valid";
+      } else if (hasColumn3) {
+        isVerified = isTrueValue(data.data.column_3);
+      }
+
+      if (!isVerified) {
+        console.error("User data found but not verified in API");
+        return false;
+      }
+
+      console.log("User validation successful");
+      return true;
+    } catch (error) {
+      console.error("Error validating user with API:", error);
+      return false;
+    }
+  };
+
+  // Fungsi untuk membersihkan localStorage
+  const clearLocalStorage = () => {
+    localStorage.removeItem("jkt48_verified_user");
+    localStorage.removeItem("jkt48_auth_token");
+    console.log("LocalStorage cleared");
+  };
+
   useEffect(() => {
-    const checkAccess = () => {
+    const checkAccess = async () => {
       try {
         // Cek apakah ada playback ID
         if (!playbackId) {
@@ -122,6 +189,7 @@ function LiveStream() {
           userData = JSON.parse(verifiedUserStr);
         } catch (parseError) {
           console.error("Error parsing userData:", parseError);
+          clearLocalStorage();
           setError("Data membership tidak valid");
           setAccessGranted(false);
           setLoading(false);
@@ -132,14 +200,39 @@ function LiveStream() {
 
         // Validasi minimal: hanya perlu token, membershipType, dan tanggal registrasi
         if (!userData.token) {
+          clearLocalStorage();
           setError("Token tidak ditemukan. Silakan verifikasi ulang.");
           setAccessGranted(false);
           setLoading(false);
           return;
         }
 
-        if (!userData.membership_type && !userData.membershipType) {
+        if (!userData.membershipType && !userData.membership_type) {
+          clearLocalStorage();
           setError("Tipe membership tidak ditemukan.");
+          setAccessGranted(false);
+          setLoading(false);
+          return;
+        }
+
+        // Validasi email dan whatsapp
+        if (!userData.email || !userData.whatsapp) {
+          clearLocalStorage();
+          setError("Data email atau WhatsApp tidak lengkap.");
+          setAccessGranted(false);
+          setLoading(false);
+          return;
+        }
+
+        // VALIDASI DENGAN API
+        console.log("Checking user validity with API...");
+        const isValidInAPI = await validateUserWithAPI(userData);
+        
+        if (!isValidInAPI) {
+          clearLocalStorage();
+          setError(
+            "Data membership Anda tidak valid atau telah dihapus dari sistem. Silakan verifikasi ulang."
+          );
           setAccessGranted(false);
           setLoading(false);
           return;
@@ -147,16 +240,12 @@ function LiveStream() {
 
         // Cari registered_date dari berbagai sumber yang mungkin
         let registeredDate =
-          userData.registered_date || userData.registeredDate;
-        if (
-          !registeredDate &&
-          userData.verifiedAt &&
-          userData.verifiedAt.fullDate
-        ) {
-          registeredDate = userData.verifiedAt.fullDate;
-        }
+          userData.registered_date || 
+          userData.registeredDate ||
+          (userData.verifiedAt && userData.verifiedAt.fullDate);
 
         if (!registeredDate) {
+          clearLocalStorage();
           setError("Data registrasi tidak ditemukan.");
           setAccessGranted(false);
           setLoading(false);
@@ -170,8 +259,7 @@ function LiveStream() {
         // CEK APAKAH SUDAH EXPIRED
         if (isMembershipExpired(registeredDate, membershipType)) {
           // Hapus data membership yang expired
-          localStorage.removeItem("jkt48_verified_user");
-          localStorage.removeItem("jkt48_auth_token");
+          clearLocalStorage();
           setError(
             "Membership Anda telah berakhir. Silakan perpanjang membership."
           );
@@ -197,6 +285,7 @@ function LiveStream() {
         }, 500);
       } catch (error) {
         console.error("Error checking access:", error);
+        clearLocalStorage();
         setError("Terjadi kesalahan saat memeriksa akses. Silakan coba lagi.");
         setAccessGranted(false);
         setLoading(false);
@@ -220,6 +309,9 @@ function LiveStream() {
         <div className="stream-loading">
           <div className="loading-spinner"></div>
           <p>Memuat live stream...</p>
+          <p style={{ fontSize: "12px", marginTop: "10px", color: "#666" }}>
+            Memvalidasi akses Anda...
+          </p>
         </div>
       </div>
     );
