@@ -56,7 +56,7 @@ function LiveStream() {
 
       // Verifikasi code menggunakan API
       const verifyResponse = await fetch(
-        "https://v2.jkt48connect.com/api/codes/verify",
+        "https://v2.jkt48connect.com/api/wotatokens/verify",
         {
           method: "POST",
           headers: {
@@ -75,12 +75,12 @@ function LiveStream() {
       if (verifyData.status && verifyData.data.is_valid) {
         // Cek apakah code sudah digunakan
         const listResponse = await fetch(
-          `https://v2.jkt48connect.com/api/codes/list?email=${verificationData.email}&apikey=JKTCONNECT`,
+          `https://v2.jkt48connect.com/api/wotatokens/list?email=${verificationData.email}&apikey=JKTCONNECT`,
         );
         const listData = await listResponse.json();
 
-        if (listData.status && listData.data.codes) {
-          const userCode = listData.data.codes.find(
+        if (listData.status && listData.data.wotatokens) {
+          const userCode = listData.data.wotatokens.find(
             (c) => c.code === verificationData.code,
           );
 
@@ -100,7 +100,7 @@ function LiveStream() {
 
             // Gunakan code (menandai sebagai used dan menyimpan IP)
             const useResponse = await fetch(
-              "https://v2.jkt48connect.com/api/codes/use",
+              "https://v2.jkt48connect.com/api/wotatokens/use",
               {
                 method: "POST",
                 headers: {
@@ -177,7 +177,7 @@ function LiveStream() {
 
         // Verifikasi ulang dengan API
         const verifyResponse = await fetch(
-          "https://v2.jkt48connect.com/api/codes/verify",
+          "https://v2.jkt48connect.com/api/wotatokens/verify",
           {
             method: "POST",
             headers: {

@@ -15,11 +15,12 @@ import Header from "./components/Header";
 import LiveStream from "./pages/live";
 import Verify from "./pages/verify";
 import Replay from "./pages/replay";
+import Admin from "./pages/Admin";
 
 function App() {
   return (
     <Router>
-      <Header />
+    
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -37,6 +38,7 @@ function App() {
           <Route path="/live/:playbackId" element={<LiveStream />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/replay/:playbackId" element={<Replay />} />
+          <Route path="/control-panel" element={<Admin />} />
 
           {/* Catch-all route untuk 404 */}
           <Route path="*" element={<NotFound />} />

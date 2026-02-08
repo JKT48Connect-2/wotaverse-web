@@ -75,52 +75,7 @@ function Home() {
 
   return (
     <div className="container">
-      {/* Banner Carousel */}
-      <div className="banner-carousel">
-        <div className="carousel-container">
-          {bannerImages.map((img, index) => (
-            <div
-              key={index}
-              className={`carousel-slide ${
-                index === currentBanner ? "active" : ""
-              }`}
-            >
-              <img src={img} alt={`Banner ${index + 1}`} />
-            </div>
-          ))}
-
-          {/* Navigation Arrows */}
-          <button
-            className="carousel-arrow carousel-arrow-left"
-            onClick={prevBanner}
-            aria-label="Previous banner"
-          >
-            ‹
-          </button>
-          <button
-            className="carousel-arrow carousel-arrow-right"
-            onClick={nextBanner}
-            aria-label="Next banner"
-          >
-            ›
-          </button>
-
-          {/* Dots Indicator */}
-          <div className="carousel-dots">
-            {bannerImages.map((_, index) => (
-              <button
-                key={index}
-                className={`carousel-dot ${
-                  index === currentBanner ? "active" : ""
-                }`}
-                onClick={() => goToBanner(index)}
-                aria-label={`Go to banner ${index + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
+  
 
       {/* Live Show Section */}
       <LiveShowSection loading={loading} />
@@ -255,7 +210,7 @@ function LiveShowSection({ loading }) {
   const fetchLiveShows = async () => {
     try {
       const response = await fetch(
-        "https://v2.jkt48connect.com/api/mux/live-streams?apikey=JKTCONNECT&username=vzy&password=vzy"
+        "https://v2.jkt48connect.com/api/wotaverse/live-streams?apikey=JKTCONNECT&username=vzy&password=vzy"
       );
       const result = await response.json();
 
@@ -396,7 +351,7 @@ function ReplayShowSection({ loading }) {
   const fetchReplayShows = async () => {
     try {
       const response = await fetch(
-        "https://v2.jkt48connect.my.id/api/mux/assets?apikey=JKTCONNECT&username=vzy&password=vzy"
+        "https://v2.jkt48connect.my.id/api/wotaverse/assets?apikey=JKTCONNECT&username=vzy&password=vzy"
       );
       const result = await response.json();
 

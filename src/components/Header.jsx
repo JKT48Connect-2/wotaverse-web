@@ -348,7 +348,7 @@ const Header = () => {
           onClick={handleLogoClick}
           style={{ cursor: "pointer" }}
         >
-          <span className="logo-bold">GSTREAM</span>
+          <span className="logo-bold">wotaverse</span>
         </div>
       </nav>
     </header>

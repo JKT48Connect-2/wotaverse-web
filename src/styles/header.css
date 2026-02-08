@@ -30,7 +30,7 @@ body {
 
 /* Top Bar - sama persis seperti asli */
 .top-bar {
-  background-color: #7b1c1c;
+  background-color: #3d5a8c;
   color: white;
   font-size: 16px;             
   padding: 12px 40px;          
@@ -85,7 +85,7 @@ header {
 }
 
 .logo {
-  color: #7b1c1c;
+  color: #4a6fa5;
   font-size: 28px;
 }
 
@@ -111,7 +111,7 @@ header {
 }
 
 .nav-link:hover {
-  color: #7b1c1c;
+  color: #4a6fa5;
   background-color: #f8f9fa;
 }
 
@@ -139,7 +139,7 @@ header {
 }
 
 .dropdown-toggle:hover {
-  color: #7b1c1c;
+  color: #4a6fa5;
   background-color: #f8f9fa;
 }
 
@@ -206,7 +206,7 @@ header {
 
 .dropdown-item:hover {
   background-color: #f8f9fa;
-  color: #7b1c1c;
+  color: #4a6fa5;
 }
 
 .dropdown-divider {
@@ -225,7 +225,7 @@ header {
 .icon-btn {
   background: none;
   border: none;
-  color: #7b1c1c;
+  color: #4a6fa5;
   font-size: 20px;
   cursor: pointer;
   position: relative;
@@ -236,7 +236,7 @@ header {
 
 .icon-btn:hover {
   background-color: #f8f9fa;
-  color: #5a1414;
+  color: #3d5a8c;
 }
 
 .user-btn {
@@ -294,28 +294,28 @@ header {
 
 .auth-btn.login-btn {
   background: transparent;
-  color: #7b1c1c;
-  border: 2px solid #7b1c1c;
+  color: #4a6fa5;
+  border: 2px solid #4a6fa5;
 }
 
 .auth-btn.login-btn:hover {
-  background: #7b1c1c;
+  background: #4a6fa5;
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(123, 28, 28, 0.3);
+  box-shadow: 0 2px 8px rgba(74, 111, 165, 0.3);
 }
 
 .auth-btn.register-btn {
-  background: #7b1c1c;
+  background: #4a6fa5;
   color: white;
-  border: 2px solid #7b1c1c;
+  border: 2px solid #4a6fa5;
 }
 
 .auth-btn.register-btn:hover {
-  background: #6a1818;
-  border-color: #6a1818;
+  background: #3d5a8c;
+  border-color: #3d5a8c;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(106, 24, 24, 0.3);
+  box-shadow: 0 2px 8px rgba(61, 90, 140, 0.3);
 }
 
 /* Logged in user styles */
@@ -334,9 +334,9 @@ header {
 
 .user-btn.logged-in:hover {
   background: #e9ecef;
-  border-color: #7b1c1c;
+  border-color: #4a6fa5;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(123, 28, 28, 0.2);
+  box-shadow: 0 2px 8px rgba(74, 111, 165, 0.2);
 }
 
 .username {
@@ -369,7 +369,7 @@ header {
 }
 
 .logout-btn {
-  color: #dc3545 !important;
+  color: #4a6fa5 !important;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -383,7 +383,7 @@ header {
 
 .logout-btn:hover {
   background: #f8f9fa !important;
-  color: #c82333 !important;
+  color: #4a6fa5 !important;
 }
 
 /* Mobile Auth Styles */
@@ -406,7 +406,7 @@ header {
 
 .user-icon {
   font-size: 24px;
-  color: #7b1c1c;
+  color: #4a6fa5;
   flex-shrink: 0;
 }
 
@@ -477,28 +477,28 @@ header {
 
 .mobile-auth-btn.login {
   background: transparent;
-  color: #7b1c1c;
-  border: 2px solid #7b1c1c;
+  color: #4a6fa5;
+  border: 2px solid #4a6fa5;
 }
 
 .mobile-auth-btn.login:hover {
-  background: #7b1c1c;
+  background: #4a6fa5;
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(123, 28, 28, 0.3);
+  box-shadow: 0 2px 8px rgba(74, 111, 165, 0.3);
 }
 
 .mobile-auth-btn.register {
-  background: #7b1c1c;
+  background: #4a6fa5;
   color: white;
-  border: 2px solid #7b1c1c;
+  border: 2px solid #4a6fa5;
 }
 
 .mobile-auth-btn.register:hover {
-  background: #6a1818;
-  border-color: #6a1818;
+  background: #3d5a8c;
+  border-color: #3d5a8c;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(106, 24, 24, 0.3);
+  box-shadow: 0 2px 8px rgba(61, 90, 140, 0.3);
 }
 
 /* Mobile/Desktop visibility classes */
@@ -515,7 +515,7 @@ header {
   display: none;
   background: none;
   border: none;
-  color: #7b1c1c;
+  color: #4a6fa5;
   font-size: 22px;
   cursor: pointer;
 }
@@ -561,7 +561,7 @@ header {
 
 .mobile-nav-link:hover {
   background-color: #f8f9fa;
-  color: #7b1c1c;
+  color: #4a6fa5;
 }
 
 .mobile-icons {
@@ -594,7 +594,7 @@ header {
 }
 
 .mobile-icon-button .icon {
-  color: #7b1c1c;
+  color: #4a6fa5;
   font-size: 18px;
 }
 
@@ -630,7 +630,7 @@ header {
 }
 
 .mobile-contact a {
-  color: #7b1c1c;
+  color: #4a6fa5;
   text-decoration: none;
   font-weight: 500;
   padding: 8px 0;
@@ -775,7 +775,7 @@ header {
 
 .menu-btn:hover {
   background-color: #f8f9fa;
-  color: #5a1414;
+  color: #3d5a8c;
 }
 /* Additional mobile responsiveness for menu button */
 @media (max-width: 768px) {
