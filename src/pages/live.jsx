@@ -9,7 +9,7 @@ function LiveStream() {
 
   // State untuk verifikasi
   const [isVerified, setIsVerified] = useState(false);
-  const [showVerification, setShowVerification] = useState(false); // UBAH: default false
+  const [showVerification, setShowVerification] = useState(false);
   const [verificationData, setVerificationData] = useState({
     email: "",
     code: "",
@@ -35,12 +35,11 @@ function LiveStream() {
       return data.ip;
     } catch (error) {
       console.error("Error fetching IP:", error);
-      // Fallback jika tidak bisa mendapatkan IP
       return "unknown";
     }
   };
 
-  // Fungsi untuk verifikasi code dengan API
+  // FIXED: Fungsi untuk verifikasi code dengan API
   const verifyAccess = async () => {
     if (!verificationData.email || !verificationData.code) {
       setVerificationError("Email dan code wajib diisi");
@@ -54,7 +53,13 @@ function LiveStream() {
       // Dapatkan IP client
       const ip = clientIP || (await fetchClientIP());
 
-      // Verifikasi code menggunakan API
+      console.log("Starting verification with:", {
+        email: verificationData.email,
+        code: verificationData.code,
+        ip: ip,
+      });
+
+      // Step 1: Verifikasi code menggunakan API verify
       const verifyResponse = await fetch(
         "https://v2.jkt48connect.com/api/wotatokens/verify",
         {
@@ -71,9 +76,19 @@ function LiveStream() {
       );
 
       const verifyData = await verifyResponse.json();
+      console.log("Verify response:", verifyData);
 
-      if (verifyData.status && verifyData.data.is_valid) {
-        // Cek apakah code sudah digunakan
+      if (!verifyData.status || !verifyData.data.is_valid) {
+        setVerificationError(
+          verifyData.message || "Code tidak valid atau sudah kedaluwarsa",
+        );
+        setVerifying(false);
+        return;
+      }
+
+      // Step 2: Cek apakah code sudah digunakan dari verify response
+      if (verifyData.data.is_used) {
+        // Jika sudah digunakan, cek apakah IP sama
         const listResponse = await fetch(
           `https://v2.jkt48connect.com/api/wotatokens/list?email=${verificationData.email}&apikey=JKTCONNECT`,
         );
@@ -85,7 +100,7 @@ function LiveStream() {
           );
 
           if (userCode) {
-            // Cek apakah IP sudah cocok (untuk validasi lebih ketat)
+            // Cek IP address
             if (
               userCode.ip_address &&
               userCode.ip_address !== "" &&
@@ -98,55 +113,67 @@ function LiveStream() {
               return;
             }
 
-            // Gunakan code (menandai sebagai used dan menyimpan IP)
-            const useResponse = await fetch(
-              "https://v2.jkt48connect.com/api/wotatokens/use",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  email: verificationData.email,
-                  code: verificationData.code,
-                  apikey: "JKTCONNECT",
-                }),
-              },
+            // Jika IP sama, izinkan akses (re-entry dari IP yang sama)
+            localStorage.setItem(
+              "stream_verification",
+              JSON.stringify({
+                email: verificationData.email,
+                code: verificationData.code,
+                ip: ip,
+                timestamp: Date.now(),
+              }),
             );
 
-            const useData = await useResponse.json();
-
-            if (useData.status) {
-              // Simpan data verifikasi ke localStorage
-              localStorage.setItem(
-                "stream_verification",
-                JSON.stringify({
-                  email: verificationData.email,
-                  code: verificationData.code,
-                  ip: ip,
-                  timestamp: Date.now(),
-                }),
-              );
-
-              setIsVerified(true);
-              setShowVerification(false);
-              setVerifying(false);
-            } else {
-              setVerificationError(useData.message || "Gagal menggunakan code");
-              setVerifying(false);
-            }
-          } else {
-            setVerificationError("Code tidak ditemukan untuk email ini");
+            setIsVerified(true);
+            setShowVerification(false);
             setVerifying(false);
+            return;
           }
-        } else {
-          setVerificationError("Gagal memverifikasi code");
-          setVerifying(false);
         }
-      } else {
-        setVerificationError(
-          verifyData.message || "Code tidak valid atau sudah kedaluwarsa",
+
+        setVerificationError("Code sudah digunakan");
+        setVerifying(false);
+        return;
+      }
+
+      // Step 3: Code belum digunakan, gunakan code
+      console.log("Code is valid and not used, attempting to use...");
+
+      const useResponse = await fetch(
+        "https://v2.jkt48connect.com/api/wotatokens/use",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: verificationData.email,
+            code: verificationData.code,
+            apikey: "JKTCONNECT",
+          }),
+        },
+      );
+
+      const useData = await useResponse.json();
+      console.log("Use response:", useData);
+
+      if (useData.status) {
+        // Berhasil menggunakan code
+        localStorage.setItem(
+          "stream_verification",
+          JSON.stringify({
+            email: verificationData.email,
+            code: verificationData.code,
+            ip: ip,
+            timestamp: Date.now(),
+          }),
         );
+
+        setIsVerified(true);
+        setShowVerification(false);
+        setVerifying(false);
+      } else {
+        setVerificationError(useData.message || "Gagal menggunakan code");
         setVerifying(false);
       }
     } catch (error) {
@@ -166,12 +193,13 @@ function LiveStream() {
         const verificationInfo = JSON.parse(stored);
         const ip = await fetchClientIP();
 
-        // UBAH: Cek apakah verifikasi masih valid (dalam 6 jam)
+        // Cek apakah verifikasi masih valid (dalam 6 jam)
         const hoursDiff =
           (Date.now() - verificationInfo.timestamp) / (1000 * 60 * 60);
         if (hoursDiff > 6) {
+          console.log("Verification expired (>6 hours)");
           localStorage.removeItem("stream_verification");
-          setShowVerification(true); // TAMBAH: Tampilkan form verifikasi
+          setShowVerification(true);
           return false;
         }
 
@@ -193,7 +221,7 @@ function LiveStream() {
 
         const verifyData = await verifyResponse.json();
 
-        // Cek apakah IP masih sama
+        // Cek apakah code masih valid dan IP masih sama
         if (
           verifyData.status &&
           verifyData.data.is_valid &&
@@ -207,18 +235,19 @@ function LiveStream() {
           });
           return true;
         } else {
+          console.log("Stored verification is no longer valid or IP changed");
           localStorage.removeItem("stream_verification");
-          setShowVerification(true); // TAMBAH: Tampilkan form verifikasi
+          setShowVerification(true);
           return false;
         }
       } catch (error) {
         console.error("Error checking verification:", error);
         localStorage.removeItem("stream_verification");
-        setShowVerification(true); // TAMBAH: Tampilkan form verifikasi
+        setShowVerification(true);
         return false;
       }
     }
-    setShowVerification(true); // TAMBAH: Tampilkan form verifikasi jika tidak ada stored
+    setShowVerification(true);
     return false;
   };
 
@@ -286,7 +315,7 @@ function LiveStream() {
     };
 
     init();
-  }, []); // PENTING: Dependency array kosong agar hanya run sekali
+  }, []);
 
   // Effect untuk load stream data setelah verifikasi
   useEffect(() => {
@@ -413,7 +442,7 @@ function LiveStream() {
 
               {verificationError && (
                 <div className="verification-error">
-                  <span className="error-icon"></span>
+                  <span className="error-icon">⚠️</span>
                   {verificationError}
                 </div>
               )}
