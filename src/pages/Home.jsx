@@ -240,7 +240,7 @@ function LiveShowSection({ loading }) {
           return {
             id: stream.id,
             title: showName,
-            host: "GStream Team",
+            host: "Wotaverse Team",
             thumbnail: playbackId
               ? `https://image.mux.com/${playbackId}/thumbnail.jpg?time=0`
               : "https://res.cloudinary.com/haymzm4wp/image/upload/v1760105848/bi5ej2hgh0cc2uowu5xr.jpg",
@@ -592,3 +592,4 @@ function ReplayShowCard({ show }) {
 }
 
 export default Home;
+
